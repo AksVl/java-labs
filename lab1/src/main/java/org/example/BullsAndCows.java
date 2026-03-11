@@ -3,14 +3,14 @@ package org.example;
 import java.util.Random;
 
 public interface BullsAndCows {
-  public enum GuessValidationResult {
+  enum GuessValidationResult {
     MATCH,
     MISMATCH,
     INVALID,
     QUIT
   }
 
-  public static GuessValidationResult validateGuess(String guess, String secret) {
+  static GuessValidationResult validateGuess(String guess, String secret) {
     if (guess == null || guess.isEmpty()) {
       return GuessValidationResult.INVALID;
     }
@@ -31,7 +31,7 @@ public interface BullsAndCows {
     return GuessValidationResult.MISMATCH;
   }
 
-  public static String generateSecret(int length) {
+  static String generateSecret(int length) {
     Random rand = new Random();
     StringBuilder sb = new StringBuilder(length);
     for (int i = 0; i < length; i++) {
@@ -40,7 +40,7 @@ public interface BullsAndCows {
     return sb.toString();
   }
 
-  public static int[] getBullsAndCows(String guess, String secret) {
+  static int[] getBullsAndCows(String guess, String secret) {
     if (guess.length() != secret.length()) {
       throw new IllegalArgumentException("Guess length must match secret length");
     }

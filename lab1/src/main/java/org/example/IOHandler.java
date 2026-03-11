@@ -28,7 +28,7 @@ public class IOHandler {
         return reader.readLine();
       }
       try {
-        Thread.sleep(50); // small pause to avoid busy‑waiting
+        Thread.sleep(50);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
         return null;
@@ -45,6 +45,7 @@ public class IOHandler {
     try {
       readLine();
     } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -56,7 +57,7 @@ public class IOHandler {
   public int getInt() {
     try {
       return readInt();
-    } catch (IOException | NumberFormatException e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }

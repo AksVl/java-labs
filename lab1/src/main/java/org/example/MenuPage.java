@@ -2,6 +2,8 @@ package org.example;
 
 import java.util.Map;
 
+import static org.example.Main.logger;
+
 public class MenuPage extends Page {
 
   public static final String unknownOptionMSG = "No such option\n";
@@ -9,18 +11,21 @@ public class MenuPage extends Page {
   private String msg;
   private final Map<Integer, Runnable> options;
 
-  public MenuPage(String msg, Map<Integer, Runnable> options) {
+  public MenuPage(String name, String msg, Map<Integer, Runnable> options) {
+    super(name);
     this.msg = msg;
     this.options = options;
     this.exit = false;
   }
 
   public void updateMSG(String newMSG){
+    logger.info("msg updated in "+this.toString());
     this.msg = newMSG;
   }
 
   @Override
-  public void run(IOHandler ioHandler, Page previous) {
+  public void run(IOHandler ioHandler, Page previous){
+    logger.info("entered "+this.toString());
     this.previous = previous;
     this.exit = false;
     ioHandler.clear();
@@ -46,6 +51,7 @@ public class MenuPage extends Page {
 
   @Override
   public void refresh(IOHandler ioHandler){
+    logger.info("refreshed "+this.toString());
     ioHandler.clear();
     ioHandler.display(msg);
   }

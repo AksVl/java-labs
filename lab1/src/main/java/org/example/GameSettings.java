@@ -1,7 +1,6 @@
 package org.example;
 
 import java.io.*;
-import java.util.Map;
 import java.util.Properties;
 
 public class GameSettings {
@@ -11,32 +10,25 @@ public class GameSettings {
   public static final String SECRET_LENGTH_PROPERTY_NAME = "secret_length";
   public static final String ATTEMPT_TIME_PROPERTY_NAME = "attempt_time";
   public static final String MAX_ATTEMPTS_PROPERTY_NAME = "max_attempts";
-  public static final String IS_WITH_TIMER_PROPERTY_NAME = "is_with_timer";
+  public static final String TIMER_MODE_PROPERTY_NAME = "TIMER_MODE";
 
 
   public enum SettingOption {
     SECRET_LENGTH,
     ATTEMPT_TIME,
     MAX_ATTEMPTS,
-    IS_WITH_TIMER
+    TIMER_MODE
   }
-
-  public static final Map<Integer, SettingOption> options = Map.ofEntries(
-          Map.entry(1, SettingOption.SECRET_LENGTH),
-          Map.entry(2, SettingOption.MAX_ATTEMPTS),
-          Map.entry(3, SettingOption.IS_WITH_TIMER),
-          Map.entry(4, SettingOption.ATTEMPT_TIME)
-  );
 
   private int secretLength;
   private int maxAttempts;
-  private boolean isWithTimer;
+  private boolean timerMode;
   private int attemptTime;
 
   public GameSettings() {
     this.secretLength = 4;
     this.maxAttempts = 10;
-    this.isWithTimer = true;
+    this.timerMode = true;
     this.attemptTime = 60;
   }
 
@@ -49,26 +41,29 @@ public class GameSettings {
     switch (setting) {
       case SECRET_LENGTH -> secretLength = newValue;
       case MAX_ATTEMPTS -> maxAttempts = newValue;
-      case IS_WITH_TIMER -> isWithTimer = newValue == 1;
+      case TIMER_MODE -> timerMode = newValue == 1;
       case ATTEMPT_TIME -> attemptTime = newValue;
     }
   }
 
-  public void saveToFile(String filePath) throws IOException {
+  public void saveToFile(String filePath) {
     Properties props = new Properties();
     props.setProperty(SECRET_LENGTH_PROPERTY_NAME, String.valueOf(secretLength));
     props.setProperty(MAX_ATTEMPTS_PROPERTY_NAME, String.valueOf(maxAttempts));
-    props.setProperty(IS_WITH_TIMER_PROPERTY_NAME, String.valueOf(isWithTimer));
+    props.setProperty(TIMER_MODE_PROPERTY_NAME, String.valueOf(timerMode));
     props.setProperty(ATTEMPT_TIME_PROPERTY_NAME, String.valueOf(attemptTime));
 
     try (Writer writer = new FileWriter(filePath)) {
       props.store(writer, PROPERTIES_HEADER);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
   public void loadFromFile(String filePath) throws IOException {
     Properties props = new Properties();
-    try (Reader reader = new FileReader(filePath)) {
+    try {
+      Reader reader = new FileReader(filePath);
       props.load(reader);
     } catch (IOException e) {
       return;
@@ -90,10 +85,10 @@ public class GameSettings {
       }
     }
 
-    val = props.getProperty(IS_WITH_TIMER_PROPERTY_NAME);
+    val = props.getProperty(TIMER_MODE_PROPERTY_NAME);
     if (val != null) {
       try {
-        isWithTimer = Integer.parseInt(val.trim()) == 1;
+        timerMode = Integer.parseInt(val.trim()) == 1;
       } catch (NumberFormatException ignored) {
       }
     }
@@ -119,6 +114,16 @@ public class GameSettings {
             "type a number of chosen option:\n";
   }
 
+  @Override
+  public String toString() {
+    return "{" +
+            "secretLength=" + this.getSecretLength() +
+            ", maxAttempts=" + this.getMaxAttempts() +
+            ", timerMode=" + this.getTimerMode() +
+            ", attemptMode=" + this.getAttemptTime() +
+            "}";
+  }
+
   public int getSecretLength() {
     return secretLength;
   }
@@ -127,8 +132,8 @@ public class GameSettings {
     return maxAttempts;
   }
 
-  public boolean getTimerMode(){
-    return isWithTimer;
+  public boolean getTimerMode() {
+    return timerMode;
   }
 
   public int getAttemptTime() {
