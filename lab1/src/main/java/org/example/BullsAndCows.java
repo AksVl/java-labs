@@ -14,7 +14,7 @@ public interface BullsAndCows {
     if (guess == null || guess.isEmpty()) {
       return GuessValidationResult.INVALID;
     }
-    if (guess.charAt(0) == 'q') {
+    if (guess.equals("q") || guess.equals("Q")) {
       return GuessValidationResult.QUIT;
     }
     if (guess.length() != secret.length()) {
