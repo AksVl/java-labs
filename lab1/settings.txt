@@ -1,0 +1,5 @@
+#GAME SETTINGS
+#Wed Mar 11 19:09:51 NOVT 2026
+attempt_time=2
+max_attempts=10
+secret_length=4
