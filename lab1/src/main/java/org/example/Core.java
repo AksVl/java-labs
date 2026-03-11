@@ -14,7 +14,7 @@ public class Core {
     PagesImpl.initPages(ioHandler,settings);
   }
 
-  public void start() {
+  public void start() throws IOException {
     Page current = PagesImpl.main;
     current.run(ioHandler, null);
   }

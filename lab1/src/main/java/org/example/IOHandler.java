@@ -21,9 +21,6 @@ public class IOHandler {
     output.flush();
   }
 
-  /**
-   * Reads a line with a timeout. Returns null if no input within the timeout.
-   */
   public String readLineWithTimeout(long timeout, TimeUnit unit) throws IOException {
     long deadline = System.currentTimeMillis() + unit.toMillis(timeout);
     while (System.currentTimeMillis() < deadline) {
@@ -40,28 +37,20 @@ public class IOHandler {
     return null;
   }
 
-  /**
-   * Reads a full line (blocks until Enter is pressed).
-   */
-  public String readLine() {
-    try {
+  public String readLine() throws IOException {
       return reader.readLine();
+  }
+
+  public void consumeBuffered(){
+    try {
+      readLine();
     } catch (IOException e) {
-      return null;
     }
   }
 
-  /**
-   * Reads an integer from a line. Throws NumberFormatException if invalid.
-   */
   public int readInt() throws IOException {
     String line = readLine();
     return Integer.parseInt(line.trim());
-  }
-
-  // Optional: keep old methods for backward compatibility, but mark them deprecated
-  public String getString() {
-    return readLine();
   }
 
   public int getInt() {

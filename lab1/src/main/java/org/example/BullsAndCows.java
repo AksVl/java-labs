@@ -2,11 +2,7 @@ package org.example;
 
 import java.util.Random;
 
-public class BullsAndCows {
-  private String secret;
-  private double timeLeft;
-  private int maxAttempts;
-
+public interface BullsAndCows {
   public enum GuessValidationResult {
     MATCH,
     MISMATCH,
@@ -14,13 +10,7 @@ public class BullsAndCows {
     QUIT
   }
 
-  public BullsAndCows(IOHandler ioHandler, GameSettings settings) {
-    this.secret = generateSecret(settings.getSecretLength());
-    this.timeLeft = settings.getAttemptTime();
-    this.maxAttempts = settings.getMaxAttempts();
-  }
-
-  public GuessValidationResult validateGuess(String guess) {
+  public static GuessValidationResult validateGuess(String guess, String secret) {
     if (guess == null || guess.isEmpty()) {
       return GuessValidationResult.INVALID;
     }
@@ -50,11 +40,7 @@ public class BullsAndCows {
     return sb.toString();
   }
 
-  public String getSecret() {
-    return secret;
-  }
-
-  public int[] getBullsAndCows(String guess) {
+  public static int[] getBullsAndCows(String guess, String secret) {
     if (guess.length() != secret.length()) {
       throw new IllegalArgumentException("Guess length must match secret length");
     }

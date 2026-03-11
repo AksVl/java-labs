@@ -1,19 +1,22 @@
 package org.example;
 
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class MenuPage extends Page {
 
   public static final String unknownOptionMSG = "No such option\n";
 
-  private final String msg;
+  private String msg;
   private final Map<Integer, Runnable> options;
 
   public MenuPage(String msg, Map<Integer, Runnable> options) {
     this.msg = msg;
     this.options = options;
     this.exit = false;
+  }
+
+  public void updateMSG(String newMSG){
+    this.msg = newMSG;
   }
 
   @Override
@@ -28,13 +31,13 @@ public class MenuPage extends Page {
         choice = ioHandler.getInt();
       } catch (Exception e) {
         ioHandler.display(MenuPage.unknownOptionMSG);
-        ioHandler.getString();
+        ioHandler.consumeBuffered();
         continue;
       }
       Runnable action = options.get(choice);
       if (action == null) {
         ioHandler.display(MenuPage.unknownOptionMSG);
-        ioHandler.getString();
+        ioHandler.consumeBuffered();
         continue;
       }
       action.run();
