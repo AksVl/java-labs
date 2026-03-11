@@ -18,14 +18,14 @@ public class MenuPage extends Page {
     this.exit = false;
   }
 
-  public void updateMSG(String newMSG){
-    logger.info("msg updated in "+this.toString());
+  public void updateMSG(String newMSG) {
+    logger.info("msg updated in " + this.toString());
     this.msg = newMSG;
   }
 
   @Override
-  public void run(IOHandler ioHandler, Page previous){
-    logger.info("entered "+this.toString());
+  public void run(IOHandler ioHandler, Page previous) {
+    logger.info("entered " + this.toString());
     this.previous = previous;
     this.exit = false;
     ioHandler.clear();
@@ -36,13 +36,11 @@ public class MenuPage extends Page {
         choice = ioHandler.getInt();
       } catch (Exception e) {
         ioHandler.display(MenuPage.unknownOptionMSG);
-        ioHandler.consumeBuffered();
         continue;
       }
       Runnable action = options.get(choice);
       if (action == null) {
         ioHandler.display(MenuPage.unknownOptionMSG);
-        ioHandler.consumeBuffered();
         continue;
       }
       action.run();
@@ -50,8 +48,8 @@ public class MenuPage extends Page {
   }
 
   @Override
-  public void refresh(IOHandler ioHandler){
-    logger.info("refreshed "+this.toString());
+  public void refresh(IOHandler ioHandler) {
+    logger.info("refreshed " + this.toString());
     ioHandler.clear();
     ioHandler.display(msg);
   }

@@ -14,7 +14,7 @@ public class Page {
     this.exit = false;
   }
 
-  public void run(IOHandler ioHandler, Page previous){
+  public void run(IOHandler ioHandler, Page previous) {
     logger.info("entered " + this.toString());
   }
 
@@ -31,7 +31,7 @@ public class Page {
   }
 
   @Override
-  public String toString(){
+  public String toString() {
     return name;
   }
 }

@@ -2,6 +2,9 @@ package org.example;
 
 import java.io.*;
 import java.util.Properties;
+import java.util.logging.Level;
+
+import static org.example.Main.logger;
 
 public class GameSettings {
 
@@ -73,7 +76,8 @@ public class GameSettings {
     if (val != null) {
       try {
         secretLength = Integer.parseInt(val.trim());
-      } catch (NumberFormatException ignored) {
+      } catch (NumberFormatException e) {
+        logger.log(Level.SEVERE, "unable to read secretLength, default value is used");
       }
     }
 
@@ -81,23 +85,22 @@ public class GameSettings {
     if (val != null) {
       try {
         maxAttempts = Integer.parseInt(val.trim());
-      } catch (NumberFormatException ignored) {
+      } catch (NumberFormatException e) {
+        logger.log(Level.SEVERE, "unable to read maxAttempts, default value is used");
       }
     }
 
     val = props.getProperty(TIMER_MODE_PROPERTY_NAME);
     if (val != null) {
-      try {
-        timerMode = Integer.parseInt(val.trim()) == 1;
-      } catch (NumberFormatException ignored) {
-      }
+      timerMode = Boolean.parseBoolean(val.trim());
     }
 
     val = props.getProperty(ATTEMPT_TIME_PROPERTY_NAME);
     if (val != null) {
       try {
         attemptTime = Integer.parseInt(val.trim());
-      } catch (NumberFormatException ignored) {
+      } catch (NumberFormatException e) {
+        logger.log(Level.SEVERE, "unable to read attemptTime, default value is used");
       }
     }
   }

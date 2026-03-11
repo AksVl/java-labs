@@ -38,15 +38,7 @@ public class IOHandler {
   }
 
   public String readLine() throws IOException {
-      return reader.readLine();
-  }
-
-  public void consumeBuffered(){
-    try {
-      readLine();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return reader.readLine();
   }
 
   public int readInt() throws IOException {

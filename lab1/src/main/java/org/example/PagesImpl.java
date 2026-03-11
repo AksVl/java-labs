@@ -69,13 +69,12 @@ public class PagesImpl {
             case MATCH:
               logger.info(gamePageName + " : " + "guessed right");
               ioHandler.display("Congratulations! You guessed the secret!\n(press enter to exit)\n");
-              ioHandler.consumeBuffered();
               this.exit(ioHandler);
               return;
             case MISMATCH:
               logger.info(gamePageName + " : " + "guessed wrong");
-              int[] bc = BullsAndCows.getBullsAndCows(guess, secret);
-              ioHandler.display("Bulls: " + bc[0] + ", Cows: " + bc[1] + "\n");
+              int[] bullsAndCows = BullsAndCows.getBullsAndCows(guess, secret);
+              ioHandler.display("Bulls: " + bullsAndCows[0] + ", Cows: " + bullsAndCows[1] + "\n");
               attemptsLeft--;
               break;
           }
@@ -85,7 +84,11 @@ public class PagesImpl {
           logger.info(gamePageName + " : " + "no attempts left");
           ioHandler.display("No attempts left. The secret was: " + secret + "\n");
         }
-        ioHandler.consumeBuffered();
+        try {
+          ioHandler.readLine();
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
         this.exit(ioHandler);
       }
     };
@@ -135,7 +138,6 @@ public class PagesImpl {
         newValue = ioHandler.getInt();
       } catch (Exception e) {
         ioHandler.display("Invalid input. Please enter a number.\n");
-        ioHandler.consumeBuffered();
       }
     }
     logger.info(settingsPageName + " : " + option + " changed to " + newValue);
