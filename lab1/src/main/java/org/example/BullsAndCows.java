@@ -48,11 +48,18 @@ public interface BullsAndCows {
    * @param length the number of digits in the secret
    * @return a string of {@code length} random digits
    */
+
   static String generateSecret(int length) {
     Random rand = new Random();
     StringBuilder sb = new StringBuilder(length);
+    boolean[] used = new boolean[10];
     for (int i = 0; i < length; i++) {
-      sb.append(rand.nextInt(10));
+      int randInt;
+      do{
+        randInt = rand.nextInt(10);
+      }while(used[randInt]);
+      used[randInt] = true;
+      sb.append(randInt);
     }
     return sb.toString();
   }

@@ -26,17 +26,16 @@ public class GameSettings {
     TIMER_MODE
   }
 
-  private int secretLength;
-  private int maxAttempts;
-  private boolean timerMode;
-  private int attemptTime;
+  private int secretLength = 4;
+  private int maxAttempts = 10;
+  private boolean timerMode = true;
+  private int attemptTime = 60;
 
-  /** creates a new GameSettings object with default values */
+  /**
+   * creates a new GameSettings object with default values
+   */
   public GameSettings() {
-    this.secretLength = 4;
-    this.maxAttempts = 10;
-    this.timerMode = true;
-    this.attemptTime = 60;
+    //
   }
 
   /**
@@ -46,14 +45,13 @@ public class GameSettings {
    * @param filePath path to the settings file
    */
   public GameSettings(String filePath) {
-    this();
     loadFromFile(filePath);
   }
 
   /**
    * applies a change to a specific setting
-
-   * @param setting the setting to change
+   *
+   * @param setting  the setting to change
    * @param newValue the new value of a setting
    */
   public void applyChange(SettingOption setting, int newValue) {
@@ -78,7 +76,7 @@ public class GameSettings {
     props.setProperty(TIMER_MODE_PROPERTY_NAME, String.valueOf(timerMode));
     props.setProperty(ATTEMPT_TIME_PROPERTY_NAME, String.valueOf(attemptTime));
 
-    try{
+    try {
       Writer writer = new FileWriter(filePath);
       props.store(writer, PROPERTIES_HEADER);
     } catch (IOException e) {
