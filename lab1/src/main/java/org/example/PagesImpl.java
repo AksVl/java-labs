@@ -23,7 +23,7 @@ public class PagesImpl {
    * fills page instances with actual behavior implementations
    *
    * @param ioHandler the handler for input output
-   * @param settings an object to store game settings
+   * @param settings  an object to store game settings
    */
   public static void initPages(IOHandler ioHandler, GameSettings settings) {
 
@@ -84,7 +84,8 @@ public class PagesImpl {
               continue;
             case MATCH:
               logger.info(gamePageName + " : " + "guessed right");
-              ioHandler.display("Congratulations! You guessed the secret!\n(press enter to exit)\n");
+              ioHandler.display("Congratulations! You guessed the secret!\n");
+              ioHandler.display("(press enter to exit)\n");
               this.exit(ioHandler);
               return;
             case MISMATCH:
@@ -100,6 +101,7 @@ public class PagesImpl {
           logger.info(gamePageName + " : " + "no attempts left");
           ioHandler.display("No attempts left. The secret was: " + secret + "\n");
         }
+        ioHandler.display("(press enter to exit)\n");
         try {
           ioHandler.readLine();
         } catch (IOException e) {
@@ -149,9 +151,9 @@ public class PagesImpl {
    * handles the change of a parameter on Settings page
    *
    * @param ioHandler the handler for input output
-   * @param settings an object to store game settings
-   * @param option the setting option to change
-   * @param page the settings page instance
+   * @param settings  an object to store game settings
+   * @param option    the setting option to change
+   * @param page      the settings page instance
    */
   private static void changeSetting(IOHandler ioHandler, GameSettings settings,
                                     GameSettings.SettingOption option, MenuPage page) {
