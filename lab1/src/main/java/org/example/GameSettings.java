@@ -6,6 +6,9 @@ import java.util.logging.Level;
 
 import static org.example.Main.logger;
 
+/**
+ * stores and manages game settings, interacts with storage file
+ */
 public class GameSettings {
 
   public static final String defaultFilePath = "settings.txt";
@@ -28,6 +31,7 @@ public class GameSettings {
   private boolean timerMode;
   private int attemptTime;
 
+  /** creates a new GameSettings object with default values */
   public GameSettings() {
     this.secretLength = 4;
     this.maxAttempts = 10;
@@ -35,11 +39,23 @@ public class GameSettings {
     this.attemptTime = 60;
   }
 
-  public GameSettings(String filePath) throws IOException {
+  /**
+   * creates a new GameSettings object and loads settings from the specified file
+   * if the file does not exist or contains errors, default values are used
+   *
+   * @param filePath path to the settings file
+   */
+  public GameSettings(String filePath) {
     this();
     loadFromFile(filePath);
   }
 
+  /**
+   * applies a change to a specific setting
+
+   * @param setting the setting to change
+   * @param newValue the new value of a setting
+   */
   public void applyChange(SettingOption setting, int newValue) {
     switch (setting) {
       case SECRET_LENGTH -> secretLength = newValue;
@@ -49,6 +65,12 @@ public class GameSettings {
     }
   }
 
+  /**
+   * saves the current settings to a file
+   *
+   * @param filePath the path to file
+   * @throws RuntimeException if unable to access the file
+   */
   public void saveToFile(String filePath) {
     Properties props = new Properties();
     props.setProperty(SECRET_LENGTH_PROPERTY_NAME, String.valueOf(secretLength));
@@ -56,14 +78,20 @@ public class GameSettings {
     props.setProperty(TIMER_MODE_PROPERTY_NAME, String.valueOf(timerMode));
     props.setProperty(ATTEMPT_TIME_PROPERTY_NAME, String.valueOf(attemptTime));
 
-    try (Writer writer = new FileWriter(filePath)) {
+    try{
+      Writer writer = new FileWriter(filePath);
       props.store(writer, PROPERTIES_HEADER);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  public void loadFromFile(String filePath) throws IOException {
+  /**
+   * loads settings from a file if able to
+   *
+   * @param filePath the file path to load from
+   */
+  public void loadFromFile(String filePath) {
     Properties props = new Properties();
     try {
       Reader reader = new FileReader(filePath);
@@ -105,6 +133,11 @@ public class GameSettings {
     }
   }
 
+  /**
+   * returns the menu string that displays the current settings
+   *
+   * @return a formatted string suitable for display in a settings menu
+   */
   public String getMenuString() {
     return "Settings\n" +
             "\n" +
@@ -117,6 +150,11 @@ public class GameSettings {
             "type a number of chosen option:\n";
   }
 
+  /**
+   * returns a string representation of the current settings for logging
+   *
+   * @return a string containing all setting values
+   */
   @Override
   public String toString() {
     return "{" +

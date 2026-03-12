@@ -7,6 +7,10 @@ import java.util.logging.Level;
 
 import static org.example.Main.logger;
 
+/**
+ * utility class that holds and initializes page instances
+ * pages are created once and stored as static fields for global access
+ */
 public class PagesImpl {
   public static Page gamePage;
   public static final String gamePageName = "Game page";
@@ -15,30 +19,42 @@ public class PagesImpl {
   public static MenuPage settingsPage;
   public static final String settingsPageName = "Settings page";
 
+  /**
+   * fills page instances with actual behavior implementations
+   *
+   * @param ioHandler the handler for input output
+   * @param settings an object to store game settings
+   */
   public static void initPages(IOHandler ioHandler, GameSettings settings) {
 
     gamePage = new Page(gamePageName) {
       @Override
       public void run(IOHandler ioHandler, Page previous) {
-        logger.info(gamePageName + " : " + "game started");
         this.previous = previous;
-        String secret = BullsAndCows.generateSecret(settings.getSecretLength());
-        logger.info(gamePageName + " : " + "Generated a secret = " + secret);
-        int attemptsLeft = settings.getMaxAttempts();
 
-        ioHandler.display("Game started! Try to guess the " + settings.getSecretLength() + "-digit secret.\n");
+        int secretLength = settings.getSecretLength();
+        int maxAttempts = settings.getMaxAttempts();
+        boolean timerMode = settings.getTimerMode();
+        int attemptTime = settings.getAttemptTime();
+
+        logger.info(gamePageName + " : " + "game started");
+        String secret = BullsAndCows.generateSecret(secretLength);
+        logger.info(gamePageName + " : " + "Generated a secret = " + secret);
+        int attemptsLeft = maxAttempts;
+
+        ioHandler.display("Game started! Try to guess the " + secretLength + "-digit secret.\n");
 
         while (attemptsLeft > 0) {
           ioHandler.display("Attempts left: " + attemptsLeft + "\n");
-          logger.info(gamePageName + " : " + "attempt " + (settings.getMaxAttempts() - attemptsLeft + 1) + "/" + settings.getMaxAttempts());
-          String s = settings.getTimerMode() ? "You have " + settings.getAttemptTime() +
+          logger.info(gamePageName + " : " + "attempt " + (maxAttempts - attemptsLeft + 1) + "/" + maxAttempts);
+          String s = timerMode ? "You have " + attemptTime +
                   " seconds to enter your guess (or 'q' to quit): \n" : "Enter your guess (or 'q' to quit): \n";
           ioHandler.display(s);
 
           String guess;
           try {
-            if (settings.getTimerMode()) {
-              guess = ioHandler.readLineWithTimeout(settings.getAttemptTime(), TimeUnit.SECONDS);
+            if (timerMode) {
+              guess = ioHandler.readLineWithTimeout(attemptTime, TimeUnit.SECONDS);
             } else {
               guess = ioHandler.readLine();
             }
@@ -63,7 +79,7 @@ public class PagesImpl {
               return;
             case INVALID:
               logger.info(gamePageName + " : " + "invalid input");
-              ioHandler.display("Invalid guess. Please enter a " + settings.getSecretLength() + "-digit number.\n");
+              ioHandler.display("Invalid guess. Please enter a " + secretLength + "-digit number.\n");
               attemptsLeft--;
               continue;
             case MATCH:
@@ -129,6 +145,14 @@ public class PagesImpl {
     logger.info("Pages initialised");
   }
 
+  /**
+   * handles the change of a parameter on Settings page
+   *
+   * @param ioHandler the handler for input output
+   * @param settings an object to store game settings
+   * @param option the setting option to change
+   * @param page the settings page instance
+   */
   private static void changeSetting(IOHandler ioHandler, GameSettings settings,
                                     GameSettings.SettingOption option, MenuPage page) {
     ioHandler.display("type in new value for chosen parameter:\n");

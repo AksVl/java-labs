@@ -8,8 +8,13 @@ import java.util.logging.SimpleFormatter;
 public class Main {
   static final Logger logger = Logger.getLogger(Main.class.getName());
 
-  public static void main(String[] args) throws IOException {
-    FileHandler fh = new FileHandler("app.log");
+  public static void main(String[] args) {
+    FileHandler fh;
+    try {
+      fh = new FileHandler("app.log");
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
     fh.setFormatter(new SimpleFormatter());
     Logger.getLogger("org.example").addHandler(fh);
     Logger.getLogger("org.example").setUseParentHandlers(false);

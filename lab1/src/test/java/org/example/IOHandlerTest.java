@@ -44,7 +44,7 @@ class IOHandlerTest {
     ByteArrayInputStream in = new ByteArrayInputStream(input.getBytes());
     IOHandler io = new IOHandler(in, System.out);
 
-    assertEquals(42, io.readInt());
+    assertEquals(42, io.getInt());
   }
 
   @Test
