@@ -3,16 +3,22 @@ package org.example;
 import java.util.Arrays;
 
 public class Main {
+  public static final String START_MSG = "Calculator started";
+  public static final String END_MSG = "Calculator terminated";
+  public static final String ERROR_MSG = "Error: ";
+  public static final String UNEXPECTED_ERROR_MSG = "Unexpected error: ";
+  public static final String EXIT = "exit";
+
   public static void main(String[] args) {
     IOHandler io = new ConsoleIOHandler();
     CommandFactory factory = new CommandFactory();
     Context context = new Context(io, factory);
 
-    io.output("Calculator started.");
+    io.output(START_MSG);
 
     while (true) {
       String line = io.readLine().trim();
-      if (line.equalsIgnoreCase("exit")) {
+      if (line.equalsIgnoreCase(EXIT)) {
         break;
       }
       if (line.isEmpty()) {
@@ -25,11 +31,11 @@ public class Main {
       try {
         context.execute();
       } catch (CalculatorException e) {
-        io.output("Error: " + e.getMessage());
+        io.output(ERROR_MSG + e.getMessage());
       } catch (Exception e) {
-        io.output("Unexpected error: " + e.getMessage());
+        io.output(UNEXPECTED_ERROR_MSG + e.getMessage());
       }
     }
-    io.output("Calculator terminated.");
+    io.output(END_MSG);
   }
 }

@@ -8,12 +8,10 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-/**
- * Factory that loads commands from JARs listed in the configuration.
- * It takes a list of JAR paths (pre‑parsed by CommandConfigParser) and
- * builds the internal command map.
- */
 public class CommandFactory {
+  public static final String UNKNOWN_COMMAND_MSG = "Unknown command: ";
+  public static final String JAR_NOT_FOUND_MSG = "JAR file not found – ";
+  public static final String JAR_NOT_LOADED_MSG = "Failed to load JAR ";
 
   private final Map<String, Class<? extends Function>> commandMap = new HashMap<>();
 
@@ -28,7 +26,7 @@ public class CommandFactory {
   private void loadJar(String jarPath) {
     File jarFile = new File(jarPath);
     if (!jarFile.exists()) {
-      System.err.println("Warning: JAR file not found – " + jarPath);
+      System.err.println(JAR_NOT_FOUND_MSG + jarPath);
       return;
     }
     try (JarFile jar = new JarFile(jarFile)) {
@@ -38,7 +36,7 @@ public class CommandFactory {
         scanJar(jar, loader);
       }
     } catch (IOException e) {
-      System.err.println("Failed to load JAR " + jarPath + ": " + e.getMessage());
+      System.err.println(JAR_NOT_LOADED_MSG + jarPath + ": " + e.getMessage());
     }
   }
 
@@ -65,7 +63,7 @@ public class CommandFactory {
   public Class<? extends Function> getCommand(String name) {
     Class<? extends Function> cmdClass = commandMap.get(name);
     if (cmdClass == null) {
-      throw new CalculatorException("Unknown command: " + name);
+      throw new CalculatorException(UNKNOWN_COMMAND_MSG + name);
     }
     return cmdClass;
   }

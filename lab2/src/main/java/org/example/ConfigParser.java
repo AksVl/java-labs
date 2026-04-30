@@ -4,24 +4,18 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Pure configuration parser.
- * Reads commands.config from the same package and returns a list of JAR paths.
- * Does NOT load any classes or build command maps.
- */
 public class ConfigParser {
+  public static final String FAILED_TO_READ_FILE_MSG = "Failed to read config file: ";
+  public static final String FAILED_TO_FIND_FILE_1_MSG = "Config file not found: ";
+  public static final String FAILED_TO_FIND_FILE_2_MSG = " in package ";
 
   private static final String CONFIG_FILE = "org/example/commands.config";
 
-  /**
-   * @return List of JAR file paths (relative or absolute) as written in the config file.
-   * @throws CalculatorException if the config file cannot be read.
-   */
   public List<String> parse() {
     List<String> jarPaths = new ArrayList<>();
     try (InputStream is = getClass().getResourceAsStream("/" + CONFIG_FILE)) {
       if (is == null) {
-        throw new CalculatorException("Config file not found: " + CONFIG_FILE + " in package " + getClass().getPackage().getName());
+        throw new CalculatorException(FAILED_TO_FIND_FILE_1_MSG + CONFIG_FILE + FAILED_TO_FIND_FILE_2_MSG + getClass().getPackage().getName());
       }
       try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
         String line;
@@ -42,7 +36,7 @@ public class ConfigParser {
         }
       }
     } catch (IOException e) {
-      throw new CalculatorException("Failed to read config file: " + CONFIG_FILE);
+      throw new CalculatorException(FAILED_TO_READ_FILE_MSG + CONFIG_FILE);
     }
     return jarPaths;
   }

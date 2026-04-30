@@ -55,11 +55,12 @@ public class Context {
     }
     String commandName = input.get(0);   // use get(0) for compatibility
     Class<? extends Function> cmdClass = factory.getCommand(commandName);
+    Function command;
     try {
-      Function command = cmdClass.getDeclaredConstructor().newInstance();
-      command.execute(this);
+      command = cmdClass.getDeclaredConstructor().newInstance();
     } catch (Exception e) {
-      throw new FunctionException("Failed to instantiate or execute command '" + commandName + "': " + e.getMessage());
+      throw new FunctionException(e.getMessage());
     }
+    command.execute(this);
   }
 }
