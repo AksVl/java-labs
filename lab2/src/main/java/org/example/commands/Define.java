@@ -1,6 +1,8 @@
 package org.example.commands;
 
+import org.example.Command;
 import org.example.Context;
+import org.example.Function;
 import org.example.FunctionException;
 
 @Command(name = "define")

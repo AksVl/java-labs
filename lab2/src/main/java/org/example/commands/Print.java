@@ -1,11 +1,13 @@
 package org.example.commands;
 
+import org.example.Command;
 import org.example.Context;
+import org.example.Function;
 
 @Command(name = "print")
-public class Print implements Function{
+public class Print implements Function {
   @Override
   public void execute(Context context) {
-    context.print(context.getStack().peek().toString());
+    context.output(context.getStack().peek().toString());
   }
 }

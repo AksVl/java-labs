@@ -1,11 +1,6 @@
 package org.example;
 
-import org.example.commands.Function;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 public class Context {
   private Stack<Double> stack;
@@ -14,37 +9,57 @@ public class Context {
   private IOHandler ioHandler;
   private CommandFactory factory;
 
+  public Context(IOHandler ioHandler, CommandFactory factory) {
+    this.stack = new Stack<>();
+    this.ioHandler = ioHandler;
+    this.factory = factory;
+  }
 
+  public Double resolve(String token) {
+    Double val = defines.get(token);
+    if (val != null) return val;
+    try {
+      return Double.parseDouble(token);
+    } catch (NumberFormatException e) {
+      return null;
+    }
+  }
 
-  public List<String> getInput(){
+  public List<String> getInput() {
     return input;
   }
 
-  public Stack<Double> getStack(){
+  public void setInput(List<String> input) {
+    this.input = input;
+  }
+
+  public Stack<Double> getStack() {
     return stack;
   }
 
-  public CommandFactory getFactory(){
+  public CommandFactory getFactory() {
     return factory;
   }
 
-  public void print(String string) {
-    ioHandler.print(string);
+  public void output(String string) {
+    ioHandler.output(string);
   }
 
-  public void addDefine(String name, Double value){
-    defines.put(name,value);
+  public void addDefine(String name, Double value) {
+    defines.put(name, value);
   }
 
-  public void execute(){
-    Function command = null;
-    try {
-      command = factory.getCommand(input.getFirst()).newInstance();
-    }catch(IllegalAccessException e){
-      //excp
-    } catch (InstantiationException e) {
-      //excp
+  public void execute() {
+    if (input == null || input.isEmpty()) {
+      throw new CalculatorException("No input provided");
     }
-    command.execute(this);
+    String commandName = input.get(0);   // use get(0) for compatibility
+    Class<? extends Function> cmdClass = factory.getCommand(commandName);
+    try {
+      Function command = cmdClass.getDeclaredConstructor().newInstance();
+      command.execute(this);
+    } catch (Exception e) {
+      throw new FunctionException("Failed to instantiate or execute command '" + commandName + "': " + e.getMessage());
+    }
   }
 }

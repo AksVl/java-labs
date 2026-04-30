@@ -1,6 +1,4 @@
-package org.example.commands;
-
-import org.example.Context;
+package org.example;
 
 public interface Function {
   public void execute(Context context);

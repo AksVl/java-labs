@@ -1,6 +1,8 @@
 package org.example.commands;
 
+import org.example.Command;
 import org.example.Context;
+import org.example.Function;
 import org.example.FunctionException;
 
 @Command(name = "push")
@@ -9,12 +11,11 @@ public class Push implements Function {
 
   @Override
   public void execute(Context context) {
-    double value;
-    try {
-      value = Double.parseDouble(context.getInput().get(1));
-    } catch (NumberFormatException e) {
+    Double value = context.resolve(context.getInput().get(1));
+    if (value != null) {
+      context.getStack().push(value);
+    } else {
       throw new FunctionException(PARSING_ERROR_MSG);
     }
-    context.getStack().push(value);
   }
 }
