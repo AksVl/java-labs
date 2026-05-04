@@ -54,7 +54,7 @@ public class CommandFactory {
             commandMap.put(annotation.name(), clazz.asSubclass(Function.class));
           }
         } catch (ClassNotFoundException | NoClassDefFoundError e) {
-          // skip unloadable classes
+          //
         }
       }
     }

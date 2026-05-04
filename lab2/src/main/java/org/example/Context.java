@@ -50,14 +50,15 @@ public class Context {
   }
 
   public void execute() {
+    //pass input as arg
     if (input == null || input.isEmpty()) {
       throw new CalculatorException("No input provided");
     }
-    String commandName = input.get(0);   // use get(0) for compatibility
+    String commandName = input.get(0);
     Class<? extends Function> cmdClass = factory.getCommand(commandName);
     Function command;
     try {
-      command = cmdClass.getDeclaredConstructor().newInstance();
+      command = cmdClass.getDeclaredConstructor().newInstance(); //move to factory
     } catch (Exception e) {
       throw new FunctionException(e.getMessage());
     }
