@@ -43,7 +43,6 @@ public class GameController {
     }
     model.setEnemies(enemies);
     model.setBullets(new ArrayList<>());
-    model.setScore(0);
     model.setState(GameState.RUNNING);
     lastTickTime = System.currentTimeMillis();
   }
@@ -93,7 +92,6 @@ public class GameController {
           if (e.isActive() && e.getBounds().intersects(b.getBounds())) {
             e.setActive(false);
             b.setActive(false);
-            model.setScore(model.getScore() + 100);
             break;
           }
         }
