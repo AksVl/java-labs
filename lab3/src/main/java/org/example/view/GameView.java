@@ -78,8 +78,7 @@ public class GameView extends JFrame {
 
       g2d.setColor(Color.WHITE);
       g2d.setFont(new Font("SansSerif", Font.BOLD, 16));
-      g2d.drawString("Score: " + model.getScore(), 20, 30);
-      g2d.drawString("Lives: " + (model.getPlayer() != null ? model.getPlayer().getLives() : 0), 20, 55);
+      g2d.drawString("health: " + (model.getPlayer() != null ? model.getPlayer().getLives() : 0), 20, 55);
 
       if (model.getState() == GameState.GAME_OVER) {
         g2d.setColor(Color.RED);
