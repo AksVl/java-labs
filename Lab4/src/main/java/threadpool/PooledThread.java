@@ -40,9 +40,7 @@ class PooledThread extends Thread {
           }
           continue;
         } else {
-          //if (!taskQueue.isEmpty()) {
-            task = taskQueue.remove();
-         // }
+          task = taskQueue.remove();
         }
       }
       try {

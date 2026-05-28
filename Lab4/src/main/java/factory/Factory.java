@@ -99,51 +99,22 @@ public class Factory {
     orderBuild = new BuildCar(productsStorages);
     orderSell = new SellCar(carStorage, dealerDelay);
 
-    Thread bodyProduction = new Thread(() -> {
+    Thread production = new Thread(() -> {
       while (!Thread.currentThread().isInterrupted()) {
-        try {
-          if (!bodyDetailStorage.isFull())
-            bodySupplierThreadPool.addTask(supplyBodies);
-          Thread.sleep(100);
-        } catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
-      }
-    });
-
-    Thread motorProduction = new Thread(() -> {
-      while (!Thread.currentThread().isInterrupted()) {
-        try {
-          if (!motorDetailStorage.isFull())
-            motorSupplierThreadPool.addTask(supplyMotors);
-          Thread.sleep(100);
-        } catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
-      }
-    });
-
-    Thread accessoryProduction = new Thread(() -> {
-      while (!Thread.currentThread().isInterrupted()) {
-        try {
-          if (!accessoryDetailStorage.isFull())
-            accessorySupplierThreadPool.addTask(supplyAccessories);
-          Thread.sleep(100);
-        } catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
-      }
-    });
-
-    Thread workerAndDealerProduction = new Thread(() -> {
-      while (!Thread.currentThread().isInterrupted()) {
-        try {
-          if (!carStorage.isFull())
-            workerThreadPool.addTask(orderBuild);
+        if(!bodyDetailStorage.isFull())
+          bodySupplierThreadPool.addTask(supplyBodies);
+        if(!motorDetailStorage.isFull())
+          motorSupplierThreadPool.addTask(supplyMotors);
+        if(!accessoryDetailStorage.isFull())
+          accessorySupplierThreadPool.addTask(supplyAccessories);
+        if(!carStorage.isFull())
+          workerThreadPool.addTask(orderBuild);
+        if(carStorage.size() > 0)
           dealerThreadPool.addTask(orderSell);
-          Thread.sleep(100);
-        } catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
       }
     });
 
-    bodyProduction.start();
-    motorProduction.start();
-    accessoryProduction.start();
-    workerAndDealerProduction.start();
+    production.start();
 
     FactoryGUI gui = new FactoryGUI(
             supplyBodies, supplyMotors, supplyAccessories, orderSell,
@@ -153,7 +124,7 @@ public class Factory {
     );
     gui.setVisible(true);
 
-    Timer timer = new Timer(1000, e -> {
+    Timer timer = new Timer(100, e -> {
       int total_sold_cars = ((SellCar) orderSell).getSoldCarsNum();
       gui.updateStats(
               bodyDetailStorage.size(),
