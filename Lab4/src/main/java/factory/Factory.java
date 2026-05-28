@@ -26,9 +26,9 @@ public class Factory {
   private Properties config;
 
   private ThreadPool workerThreadPool;
-  private ThreadPool bodySupplierThreadPool;    // split
-  private ThreadPool motorSupplierThreadPool;   // split
-  private ThreadPool accessorySupplierThreadPool; // split
+  private ThreadPool bodySupplierThreadPool;
+  private ThreadPool motorSupplierThreadPool;
+  private ThreadPool accessorySupplierThreadPool;
   private ThreadPool dealerThreadPool;
 
   private Task supplyAccessories;
@@ -164,13 +164,5 @@ public class Factory {
       );
     });
     timer.start();
-  }
-
-  private void shutdownProduction() {
-    workerThreadPool.shutdown();
-    dealerThreadPool.shutdown();
-    bodySupplierThreadPool.shutdown();
-    motorSupplierThreadPool.shutdown();
-    accessorySupplierThreadPool.shutdown();
   }
 }
