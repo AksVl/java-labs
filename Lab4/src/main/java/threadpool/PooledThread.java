@@ -8,7 +8,7 @@ import java.util.ArrayDeque;
 
 class PooledThread extends Thread {
   private final ArrayDeque<Task> taskQueue;
-  private boolean isRunning;
+  private volatile boolean isRunning;
   private Logger logger = LoggerFactory.getLogger(Factory.class.getName());
 
   public PooledThread(String name, ArrayDeque<Task> taskQueue, boolean isRunning) {
@@ -40,7 +40,9 @@ class PooledThread extends Thread {
           }
           continue;
         } else {
-          task = taskQueue.remove();
+          //if (!taskQueue.isEmpty()) {
+            task = taskQueue.remove();
+         // }
         }
       }
       try {
@@ -50,6 +52,7 @@ class PooledThread extends Thread {
         }
       } catch (InterruptedException e) {
         logger.info("Thread has been interrupted " + task.getTaskName());
+        break;
       }
       logger.info(getName() + " got the task " + task.getTaskName());
     }

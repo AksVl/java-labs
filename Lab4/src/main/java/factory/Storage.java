@@ -9,6 +9,7 @@ import java.util.Queue;
 public class Storage<T extends Product> implements Storable<T> {
   private final int capacity;
   private final Queue<T> items = new LinkedList<>();
+  private final Object lock = new Object();
   private final StorageListener listener;
 
   public Storage(int capacity, StorageListener listener) {
@@ -18,23 +19,23 @@ public class Storage<T extends Product> implements Storable<T> {
 
   @Override
   public void put(T item) throws InterruptedException {
-    synchronized (listener) {
+    synchronized (lock) {
       while (items.size() >= capacity) {
-        listener.wait();
+        lock.wait();
       }
       items.add(item);
-      listener.notifyAll();
-      listener.onProductAdded(item.getClass());
+      lock.notifyAll();
     }
+    listener.onProductAdded(item.getClass());
   }
 
   public T get() throws InterruptedException {
-    synchronized (listener) {
+    synchronized (lock) {
       while (items.isEmpty()) {
-        listener.wait();
+        lock.wait();
       }
       T item = items.poll();
-      listener.notify();
+      lock.notifyAll();
       if (item instanceof Car) {
         listener.onCarRemoved();
       }
@@ -43,14 +44,15 @@ public class Storage<T extends Product> implements Storable<T> {
   }
 
   public int size() {
-    return items.size();
+    synchronized (lock) {
+      return items.size();
+    }
   }
 
-  public int getCapacity() {
-    return capacity;
-  }
-
+  public int getCapacity() { return capacity; }
   public boolean isFull() {
-    return items.size() >= capacity;
+    synchronized (lock) {
+      return items.size() >= capacity;
+    }
   }
 }

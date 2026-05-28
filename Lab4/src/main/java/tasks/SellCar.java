@@ -19,8 +19,8 @@ public class SellCar implements Task {
   @Override
   public void execute() throws InterruptedException {
     try {
-      Thread.sleep(dealerDelay.get());
       Car car = carStorage.get();
+      Thread.sleep(dealerDelay.get());
       ++soldCarsNum;
     } catch (InterruptedException e) {
       throw e;

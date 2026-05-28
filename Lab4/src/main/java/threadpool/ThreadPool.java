@@ -11,7 +11,7 @@ import java.util.Set;
 public class ThreadPool {
   private final int threadsNum;
   private final ArrayDeque<Task> taskQueue;
-  private static final int MAX_QUEUE_SIZE = 1000;
+  private static final int MAX_QUEUE_SIZE = 100000;
   private final Set<PooledThread> availableThreads;
   private volatile boolean isRunning;
   private String poolName;
