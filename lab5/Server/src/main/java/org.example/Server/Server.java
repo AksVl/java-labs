@@ -29,8 +29,6 @@ public class Server {
                 try {
                     log.info("Server is waiting for connection...");
                     Socket socket = server.accept();
-
-                    // === HANDSHAKE: читаем 4 байта режима ===
                     byte[] modeBytes = new byte[4];
                     socket.getInputStream().readNBytes(modeBytes, 0, 4);
                     String mode = new String(modeBytes, StandardCharsets.UTF_8).trim();

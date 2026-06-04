@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 
 public abstract class UserThread extends Thread {
   protected static final Logger log = LoggerFactory.getLogger(UserThread.class);
@@ -28,9 +29,11 @@ public abstract class UserThread extends Thread {
     synchronized (Server.userThreads) {
       for (UserThread t : Server.userThreads) {
         try {
-          if (t != null) t.sendUserListToClient();
+          if (t != null && t.isWorking) t.sendUserListToClient();
+        } catch (SocketException e) {
+          log.debug("Client {} socket closed during user list broadcast", t.username);
         } catch (Exception e) {
-          log.error("Failed to send user list", e);
+          log.error("Failed to send user list to {}", t.username, e);
         }
       }
     }
@@ -40,9 +43,11 @@ public abstract class UserThread extends Thread {
     synchronized (Server.userThreads) {
       for (UserThread t : Server.userThreads) {
         try {
-          if (t != null) t.sendMessageToClient(msg);
+          if (t != null && t.isWorking) t.sendMessageToClient(msg);
+        } catch (SocketException e) {
+          log.debug("Client {} socket closed during message broadcast", t.username);
         } catch (Exception e) {
-          log.error("Failed to send message", e);
+          log.error("Failed to send message to {}", t.username, e);
         }
       }
     }
@@ -50,21 +55,20 @@ public abstract class UserThread extends Thread {
 
   protected void stopWorking() {
     isWorking = false;
-    try {
-      socket.close();
-    } catch (IOException e) {
-      log.error("Failed to close socket", e);
-    }
 
     log.info("User {} disconnected", username);
-
     synchronized (Server.usersList) {
       Server.usersList.remove(username);
     }
-    broadcastUserList();
     synchronized (Server.userThreads) {
       Server.userThreads.remove(this);
     }
+    try {
+      socket.close();
+    } catch (IOException e) {
+      log.debug("Socket already closed for {}", username);
+    }
+    broadcastUserList();
   }
 
   @Override
@@ -74,7 +78,6 @@ public abstract class UserThread extends Thread {
       sendMessageListToClient();
       performLogin();
 
-      // === ДОБАВЛЯЕМ пользователя в список ПЕРЕД рассылкой ===
       synchronized (Server.usersList) {
         Server.usersList.add(username);
       }
@@ -95,6 +98,8 @@ public abstract class UserThread extends Thread {
         broadcastMessage(msg);
         log.debug("Current message history size: {}", Server.messages.size());
       }
+    } catch (SocketException e) {
+      log.debug("Client {} disconnected abruptly", username);
     } catch (Exception e) {
       log.error("Error in client thread ({})", username, e);
     } finally {
