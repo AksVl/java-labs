@@ -1,0 +1,45 @@
+package org.example.Server;
+
+import org.example.Message.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+
+public class Server {
+    private static final Logger log = LoggerFactory.getLogger(Server.class);
+
+    private final int port = ConfigLoader.getPort();
+    private int countUsers;
+    public static final ArrayList<String> usersList = new ArrayList<>();
+    public static final ArrayList<Message> messages = new ArrayList<>();
+    public static final ArrayList<UserThread> userThreads = new ArrayList<>();
+
+    public Server() {
+        countUsers = 0;
+    }
+
+    public void onServer() throws IOException {
+        log.info("Starting server on port {}", port);
+        try (ServerSocket server = new ServerSocket(port)) {
+            while (true) {
+                try {
+                    log.info("Server is waiting for connection...");
+                    Socket socket = server.accept();
+                    UserThread userThread = new UserThread(socket);
+                    userThreads.add(userThread);
+                    countUsers++;
+                    log.info("Connection established");
+                    userThread.start();
+                } catch (Exception e) {
+                    log.error("Failed to connect to server", e);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to start server", e);
+        }
+    }
+}
