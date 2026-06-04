@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class Server {
@@ -23,16 +24,27 @@ public class Server {
     }
 
     public void onServer() throws IOException {
-        log.info("Starting server on port {}", port);
         try (ServerSocket server = new ServerSocket(port)) {
             while (true) {
                 try {
                     log.info("Server is waiting for connection...");
                     Socket socket = server.accept();
-                    UserThread userThread = new UserThread(socket);
+
+                    // === HANDSHAKE: читаем 4 байта режима ===
+                    byte[] modeBytes = new byte[4];
+                    socket.getInputStream().readNBytes(modeBytes, 0, 4);
+                    String mode = new String(modeBytes, StandardCharsets.UTF_8).trim();
+
+                    UserThread userThread;
+                    if ("XML".equalsIgnoreCase(mode)) {
+                        userThread = new XmlUserThread(socket);
+                    } else {
+                        userThread = new ObjectUserThread(socket);
+                    }
+
                     userThreads.add(userThread);
                     countUsers++;
-                    log.info("Connection established");
+                    log.info("Connection established ({} mode)", mode);
                     userThread.start();
                 } catch (Exception e) {
                     log.error("Failed to connect to server", e);

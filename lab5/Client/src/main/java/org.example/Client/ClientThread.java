@@ -5,18 +5,21 @@ import org.example.View.ClientWindow;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class ClientThread extends Thread {
     private Socket socketClient;
     private final String host = ConfigLoader.getHost();
     private final int port = ConfigLoader.getPort();
-    private ObjectOutputStream out;
-    private ObjectInputStream in;
+    private final boolean isXmlMode = ConfigLoader.isXmlMode();
+
+    private DataOutputStream xmlOut;
+    private ObjectOutputStream objOut;
+
     private final String username;
     private ClientWindow window;
     private boolean isWorking;
@@ -27,40 +30,16 @@ public class ClientThread extends Thread {
         this.window = window;
     }
 
-    public void stopWorking() {
-        isWorking = false;
-        readerThread.stopWorking();
-        try {
-            out.writeObject(new Message("", username+" disconnected", calcTimeCurrent()));
-            Message message = new Message("System", "Disconnect", calcTimeCurrent());
-            out.writeObject(message);
-            out.writeObject(username);
-            socketClient.close();
-            in.close();
-            out.close();
-        }
-        catch (Exception e) {
-            System.err.println("Failed to finish thread");
-        }
+    private String calcTimeCurrent() {
+        ZonedDateTime time = ZonedDateTime.now(ZoneId.of("Asia/Novosibirsk"));
+        return time.format(DateTimeFormatter.ofPattern("dd.MM HH:mm"));
     }
 
-    private void getListMessages() {
-        try {
-            ArrayList<Message> messages = (ArrayList<Message>)in.readObject();
-            for (Message message : messages) {
-                if(message == null || message.getText().isEmpty()) {
-                    continue;
-                }
-                if(message.getText().charAt(0) == '/') {
-                    continue;
-                }
-                window.addMessage(message);
-                System.out.println(message.getText());
-            }
-        }
-        catch (Exception e) {
-            System.err.println("Failed get array messages");
-        }
+    private void sendXmlCommand(String xml) throws IOException {
+        byte[] data = xml.getBytes(StandardCharsets.UTF_8);
+        xmlOut.writeInt(data.length);
+        xmlOut.write(data);
+        xmlOut.flush();
     }
 
     @Override
@@ -69,44 +48,87 @@ public class ClientThread extends Thread {
         System.out.println("Thread started");
         try {
             socketClient = new Socket(host, port);
-            System.out.println("Connected to server at " + host + ":" + port);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-            out = new ObjectOutputStream(socketClient.getOutputStream());
-            out.flush();
-            in = new ObjectInputStream(socketClient.getInputStream());
+            System.out.println("Connected in " + (isXmlMode ? "XML" : "Object") + " mode");
+            String modeStr = isXmlMode ? "XML\n" : "OBJ\n";
+            socketClient.getOutputStream().write(modeStr.getBytes(StandardCharsets.UTF_8));
+            socketClient.getOutputStream().flush();
 
-            getListMessages();
+            if (isXmlMode) {
+                xmlOut = new DataOutputStream(socketClient.getOutputStream());
+                DataInputStream xmlIn = new DataInputStream(socketClient.getInputStream());
 
-            window.setCurrentUsername(username);
-            out.writeObject(username);
+                sendXmlCommand("<command name=\"login\"><username>" + username + "</username></command>");
+                readerThread = new ReaderThread(xmlIn, window);
+            } else {
+                objOut = new ObjectOutputStream(socketClient.getOutputStream());
+                objOut.flush();
+                ObjectInputStream objIn = new ObjectInputStream(socketClient.getInputStream());
+                try {
+                    @SuppressWarnings("unchecked")
+                    ArrayList<Message> messages = (ArrayList<Message>) objIn.readObject();
+                    for (Message message : messages) {
+                        if (message == null || message.getText() == null || message.getText().isEmpty()) {
+                            continue;
+                        }
+                        if (message.getText().charAt(0) == '/') {
+                            continue;
+                        }
+                        window.addMessage(message);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to get array messages");
+                }
+                objOut.writeObject(username);
+                objOut.flush();
+                readerThread = new ReaderThread(objIn, window);
+            }
 
-            readerThread = new ReaderThread(in, window);
             readerThread.start();
-
-            Message messageConnected = new Message("System", username + " connected", calcTimeCurrent());
-            out.writeObject(messageConnected);
-        }
-        catch (Exception e) {
+            window.setCurrentUsername(username);
+            String time = calcTimeCurrent();
+            if (isXmlMode) {
+                sendXmlCommand("<command name=\"message\"><username> </username>"
+                        + "<text>" + username + " connected</text><time>" + time + "</time></command>");
+            } else {
+                objOut.writeObject(new Message(" ", username + " connected", time));
+                objOut.flush();
+            }
+        } catch (Exception e) {
             throw new RuntimeException(e + "Client socket create failed");
         }
     }
-
-    private String calcTimeCurrent() {
-        ZonedDateTime timeInNovosibirsk = ZonedDateTime.now(ZoneId.of("Asia/Novosibirsk"));
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM HH:mm");
-        return timeInNovosibirsk.format(formatter);
-    }
-
-    public void sendMessageFromGUI(String text) {
+    public void sendMessage(String text) {
+        String time = calcTimeCurrent();
         try {
-            String time = calcTimeCurrent();
-            if (out != null && text != null && !text.isEmpty()) {
-                Message message = new Message(username, text, time);
-                out.writeObject(message);
-                out.flush();
+            if (isXmlMode) {
+                sendXmlCommand("<command name=\"message\"><username>" + username + "</username>"
+                        + "<text>" + text + "</text><time>" + time + "</time></command>");
+            } else {
+                objOut.writeObject(new Message(username, text, time));
+                objOut.flush();
             }
         } catch (Exception e) {
             System.err.println("Failed to send message");
+        }
+    }
+
+    public void stopWorking() {
+        isWorking = false;
+        readerThread.stopWorking();
+        try {
+            String time = calcTimeCurrent();
+            if (isXmlMode) {
+                sendXmlCommand("<command name=\"message\"><username>System</username>"
+                        + "<text>" + username + " disconnected</text><time>" + time + "</time></command>");
+                sendXmlCommand("<command name=\"disconnect\"></command>");
+            } else {
+                objOut.writeObject(new Message("", username + " disconnected", time));
+                objOut.writeObject(new Message("System", "Disconnect", time));
+                objOut.flush();
+            }
+            socketClient.close();
+        } catch (Exception e) {
+            System.err.println("Failed to finish thread");
         }
     }
 }
